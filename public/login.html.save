@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ログイン</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card: #fff;
+      --border: #dbdbdb;
+      --text: #262626;
+      --blue: #0095f6;
+      --danger: #ed4956;
+      --inputBg: #fafafa;
+      --inputBorder: #dbdbdb;
+      --inputBorderFocus: #a8a8a8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      opacity: 1;
+      transition: opacity 220ms ease;
+    }
+
+    .page.fadeOut {
+      opacity: 0;
+    }
+
+    .panel {
+      width: min(350px, 100%);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1px;
+      padding: 38px 40px 32px;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin: 6px 0 22px;
+    }
+
+    .logo img {
+      width: 180px;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .10));
+    }
+
+
+
+
+    .field {
+      margin: 6px 0;
+    }
+
+    .input {
+      width: 100%;
+      padding: 10px 8px;
+      font-size: 12px;
+      background: var(--inputBg);
+      border: 1px solid var(--inputBorder);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: var(--inputBorderFocus);
+      background: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      background: var(--blue);
+      cursor: pointer;
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    .btn.enabled {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .btn.loading {
+      opacity: .85;
+      pointer-events: none;
+    }
+
+    .error {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--danger);
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="page" class="page">
+    <div class="panel">
+      <div class="card">
+        <div class="logo">
+          <img src="/images/logo.png" alt="MyApp ロゴ">
+        </div>
+
+        <form id="loginForm">
+          <div class="field">
+            <input id="username" class="input" placeholder="ユーザーID" required />
+          </div>
+          <div class="field">
+            <input id="password" class="input" type="password" placeholder="パスワード" required />
+          </div>
+
+          <button id="loginBtn" class="btn" type="submit">ログイン</button>
+          <div id="error" class="error">もう一度やり直してください</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const page = document.getElementById("page");
+    const u = document.getElementById("username");
+    const p = document.getElementById("password");
+    const btn = document.getElementById("loginBtn");
+    const err = document.getElementById("error");
+
+    function updateBtn() {
+      const ok = u.value.trim() && p.value;
+      btn.classList.toggle("enabled", !!ok);
+      err.style.display = "none";
+    }
+    u.addEventListener("input", updateBtn);
+    p.addEventListener("input", updateBtn);
+    updateBtn();
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.style.display = "none";
+      btn.classList.add("loading");
+      btn.textContent = "ログイン中…";
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u.value.trim(), password: p.value })
+        });
+
+        if (res.redirected && res.ok) {
+          page.classList.add("fadeOut");
+          setTimeout(() => location.href = res.url, 220);
+          return;
+        }
+
+        // admin以外 or adminのパス誤り → 赤文字
+        err.style.display = "block";
+      } finally {
+        btn.classList.remove("loading");
+        btn.textContent = "ログイン";
+        updateBtn();
+      }
+    });
+  </script>
+</body>
+
+</html>

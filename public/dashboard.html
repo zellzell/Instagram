@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ダッシュボード</title>
+</head>
+
+<body>
+  <h1>ログイン後ページ</h1>
+  <div id="me">読み込み中...</div>
+
+  <p><a href="/admin.html">管理ページ</a></p>
+
+  <form method="POST" action="/api/logout">
+    <button>ログアウト</button>
+  </form>
+
+  <script>
+    (async () => {
+      const res = await fetch("/api/me");
+      if (!res.ok) { location.href = "/login.html"; return; }
+      const me = await res.json();
+      document.getElementById("me").textContent =
+        `ようこそ ${me.username} さん（role: ${me.role}）`;
+    })();
+  </script>
+</body>
+
+</html>
