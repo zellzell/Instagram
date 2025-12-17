@@ -1,12 +1,4 @@
-# Node
 node_modules/
-
-# DB
 app.db
-*.db
-
-# Mac
 .DS_Store
-
-# env
 .env
