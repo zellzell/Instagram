@@ -139,15 +139,12 @@
         </div>
 
         <form id="loginForm">
-          <div class="float-field">
-  <input id="username" name="username" placeholder=" " required />
-  <label for="username">電話番号、ユーザーネーム、またはメールア</label>
-</div>
-
-<div class="float-field">
-  <input id="password" type="password" name="password" placeholder=" " required />
-  <label for="password">パスワード</label>
-</div>
+          <div class="field">
+            <input id="username" class="input" placeholder="電話番号、ユーザーネーム、またはメールア…" required />
+          </div>
+          <div class="field">
+            <input id="password" class="input" type="password" placeholder="パスワード" required />
+          </div>
 
           <button id="loginBtn" class="btn" type="submit">ログイン</button>
           <div id="error" class="error">もう一度やり直してください</div>
