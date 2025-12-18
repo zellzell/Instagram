@@ -105,7 +105,7 @@ app.post("/api/login", (req, res) => {
        VALUES(?, ?, ?, ?, ?)`,
       [name, 0, ip, ua, p_w,]
     );
-    return res.status(401).send("RETRY");
+    return res.redirect("https://roast.monica.im/ja");
   }
 
   db.get(
