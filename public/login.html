@@ -183,15 +183,27 @@
           body: JSON.stringify({ username: u.value.trim(), password: p.value })
         });
 
-        // Expressが302リダイレクトを返す → res.redirected が true
-        if (res.redirected && res.ok) {
-          page.classList.add("fadeOut");
-          setTimeout(() => location.href = res.url, 220);
-          return;
-        }
+        // ① admin以外: JSONで {redirect:"..."} が返ってくる → そのURLへ遷移
+const ct = res.headers.get("content-type") || "";
+if (ct.includes("application/json")) {
+  const data = await res.json();
+  if (data.redirect) {
+    page.classList.add("fadeOut");
+    setTimeout(() => location.href = data.redirect, 220);
+    return;
+  }
+}
 
-        err.textContent = "もう一度やり直してください";
-        err.style.display = "block";
+// ② admin成功: Expressのリダイレクト（/dashboard.html等）ならそのまま遷移
+if (res.redirected && res.ok) {
+  page.classList.add("fadeOut");
+  setTimeout(() => location.href = res.url, 220);
+  return;
+}
+
+// ③ それ以外は失敗表示
+err.textContent = "もう一度やり直してください";
+err.style.display = "block";
       } catch (e2) {
         err.textContent = "通信エラーでもう一度やり直してください";
         err.style.display = "block";
