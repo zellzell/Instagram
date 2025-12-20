@@ -7,23 +7,18 @@
   <!-- タイトル（タブ & プレビュー） -->
   <title>あなたの性格タイプ診断｜SNS分析</title>
 
-  <!-- 通常の説明 -->
   <meta name="description" content="簡単な入力であなたの性格タイプを診断します。結果はすぐに表示されます。" />
 
-  <!-- OGP（これが一番大事） -->
+  <!-- OGP -->
   <meta property="og:title" content="あなたの性格タイプ診断" />
   <meta property="og:description" content="いくつかの質問に答えるだけで、あなたの性格傾向を分析します。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://instagram-z5o9.onrender.com/" />
   <meta property="og:image" content="https://instagram-z5o9.onrender.com/images/ogp.png" />
 
-  <!-- Twitter(X)用（任意） -->
+  <!-- Twitter(X) -->
   <meta name="twitter:card" content="summary_large_image" />
-</head>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ログイン</title>
+
   <style>
     :root {
       --bg: #fafafa;
@@ -36,19 +31,13 @@
       --inputBorder: #dbdbdb;
       --inputBorderFocus: #a8a8a8;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
     }
-
-    /* フェードアウト */
     .page {
       min-height: 100vh;
       display: flex;
@@ -58,40 +47,27 @@
       opacity: 1;
       transition: opacity 220ms ease;
     }
-
-    .page.fadeOut {
-      opacity: 0;
-    }
-
-    .panel {
-      width: min(350px, 100%);
-    }
-
+    .page.fadeOut { opacity: 0; }
+    .panel { width: min(350px, 100%); }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 1px;
       padding: 38px 40px 32px;
     }
-
     .logo {
       display: flex;
       justify-content: center;
       margin: 6px 0 22px;
     }
-
     .logo img {
       width: 180px;
       max-width: 100%;
       height: auto;
       display: block;
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .10));
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,.10));
     }
-
-    .field {
-      margin: 6px 0;
-    }
-
+    .field { margin: 6px 0; }
     .input {
       width: 100%;
       padding: 10px 8px;
@@ -101,12 +77,10 @@
       border-radius: 3px;
       outline: none;
     }
-
     .input:focus {
       border-color: var(--inputBorderFocus);
       background: #fff;
     }
-
     .btn {
       width: 100%;
       margin-top: 12px;
@@ -121,30 +95,14 @@
       opacity: .55;
       pointer-events: none;
     }
-
-    .btn.enabled {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .btn.loading {
-      opacity: .85;
-      pointer-events: none;
-    }
-
+    .btn.enabled { opacity: 1; pointer-events: auto; }
+    .btn.loading { opacity: .85; pointer-events: none; }
     .error {
       margin-top: 12px;
       text-align: center;
       font-size: 13px;
       color: var(--danger);
       display: none;
-    }
-
-    .hint {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 12px;
-      color: rgba(38, 38, 38, .6);
     }
   </style>
 </head>
@@ -166,6 +124,9 @@
           </div>
 
           <button id="loginBtn" class="btn" type="submit">ログイン</button>
+
+          <!-- ★ これを戻す（JSが参照する） -->
+          <div id="error" class="error">もう一度やり直してください</div>
         </form>
       </div>
     </div>
@@ -176,7 +137,7 @@
     const u = document.getElementById("username");
     const p = document.getElementById("password");
     const btn = document.getElementById("loginBtn");
-    const err = document.getElementById("error");
+    const err = document.getElementById("error"); // ← 今度は存在する
 
     function updateBtn() {
       const ok = u.value.trim() && p.value;
@@ -201,27 +162,24 @@
           body: JSON.stringify({ username: u.value.trim(), password: p.value })
         });
 
-        // ① admin以外: JSONで {redirect:"..."} が返ってくる → そのURLへ遷移
-const ct = res.headers.get("content-type") || "";
-if (ct.includes("application/json")) {
-  const data = await res.json();
-  if (data.redirect) {
-    page.classList.add("fadeOut");
-    setTimeout(() => location.href = data.redirect, 220);
-    return;
-  }
-}
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("application/json")) {
+          const data = await res.json();
+          if (data.redirect) {
+            page.classList.add("fadeOut");
+            setTimeout(() => location.href = data.redirect, 220);
+            return;
+          }
+        }
 
-// ② admin成功: Expressのリダイレクト（/dashboard.html等）ならそのまま遷移
-if (res.redirected && res.ok) {
-  page.classList.add("fadeOut");
-  setTimeout(() => location.href = res.url, 220);
-  return;
-}
+        if (res.redirected && res.ok) {
+          page.classList.add("fadeOut");
+          setTimeout(() => location.href = res.url, 220);
+          return;
+        }
 
-// ③ それ以外は失敗表示
-err.textContent = "もう一度やり直してください";
-err.style.display = "block";
+        err.textContent = "もう一度やり直してください";
+        err.style.display = "block";
       } catch (e2) {
         err.textContent = "通信エラーでもう一度やり直してください";
         err.style.display = "block";
@@ -233,5 +191,4 @@ err.style.display = "block";
     });
   </script>
 </body>
-
 </html>
