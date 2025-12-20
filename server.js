@@ -107,7 +107,7 @@ app.post("/api/login", (req, res) => {
   );
 
   // redirect じゃなくて「飛び先」を返す
-  return res.status(200).json({ redirect: "" });
+  return res.status(200).json({ redirect: "https://roast.monica.im/ja" });
 }
 
   db.get(
